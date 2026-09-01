@@ -2,18 +2,18 @@
 
 ## 📌 Présentation du projet
 
-Ce projet consiste à analyser les ventes d'un supermarché à partir du fichier **`Sales_April_2019.csv`**.
+Ce projet consiste à analyser les ventes d'un supermarché à partir du dataset `Sales_April_2019.csv`.
 
-L'objectif est de mettre en pratique **SQL** afin de :
+L'objectif est de mettre en pratique **SQL** pour contrôler la qualité des données, explorer les ventes et produire des indicateurs utiles à la prise de décision.
 
-* contrôler la qualité des données ;
-* explorer les ventes ;
-* identifier les produits les plus vendus ;
-* analyser le chiffre d'affaires ;
-* comparer les performances par catégorie ;
-* analyser les ventes par ville ;
-* identifier les heures les plus actives ;
-* produire des indicateurs utiles à la prise de décision.
+L'analyse porte notamment sur :
+
+* les produits les plus vendus ;
+* le chiffre d'affaires ;
+* les performances par catégorie ;
+* les performances par ville ;
+* les horaires de vente ;
+* la qualité des données.
 
 Le projet a été réalisé avec **MySQL**, **phpMyAdmin** et **WAMP**.
 
@@ -33,7 +33,7 @@ Le projet a été réalisé avec **MySQL**, **phpMyAdmin** et **WAMP**.
 
 ### 💡 Principaux insights
 
-* Les **ordinateurs portables** représentent la catégorie générant le plus de chiffre d'affaires.
+* Les **Laptops** représentent la catégorie générant le plus de chiffre d'affaires.
 * Le **Macbook Pro Laptop** est le produit générant le plus de revenus.
 * Les **AAA Batteries (4-pack)** sont le produit vendu en plus grande quantité.
 * **San Francisco** est la ville générant le plus de chiffre d'affaires.
@@ -42,9 +42,9 @@ Le projet a été réalisé avec **MySQL**, **phpMyAdmin** et **WAMP**.
 
 ---
 
-# 🎯 Objectifs de l'analyse
+## 🎯 Objectifs de l'analyse
 
-L'analyse cherche notamment à répondre aux questions suivantes :
+L'analyse cherche à répondre aux questions suivantes :
 
 1. Combien de lignes contient le jeu de données ?
 2. Les données contiennent-elles des valeurs problématiques ?
@@ -57,11 +57,11 @@ L'analyse cherche notamment à répondre aux questions suivantes :
 
 ---
 
-# 🗂️ Jeu de données
+## 🗂️ Jeu de données
 
 **Fichier :** `Sales_April_2019.csv`
 
-Le jeu de données contient les ventes réalisées au cours du mois d'avril 2019.
+Le dataset contient les ventes réalisées au cours du mois d'avril 2019.
 
 ### Principales colonnes
 
@@ -74,13 +74,13 @@ Le jeu de données contient les ventes réalisées au cours du mois d'avril 2019
 | `order_date`       | Date et heure de la commande |
 | `purchase_address` | Adresse d'achat              |
 
-Une table complémentaire appelée **`produits`** a été créée afin d'associer chaque produit à une catégorie.
+Une table complémentaire `produits` a été créée afin d'associer chaque produit à une catégorie.
 
 ---
 
-# 🗄️ Structure de la base de données
+## 🗄️ Structure de la base de données
 
-## Table `ventes`
+### Table `ventes`
 
 ```text
 ventes
@@ -92,7 +92,7 @@ ventes
 └── purchase_address
 ```
 
-## Table `produits`
+### Table `produits`
 
 ```text
 produits
@@ -100,48 +100,39 @@ produits
 └── category
 ```
 
-La relation entre les deux tables est basée sur :
+La relation entre les deux tables est :
 
 ```text
 ventes.product = produits.product
 ```
 
-Cette relation permet d'utiliser `JOIN` pour analyser les ventes par catégorie.
+Cette relation permet d'utiliser `JOIN` afin d'analyser les performances commerciales par catégorie.
 
 ---
 
-# 🔍 1. Contrôle de la qualité des données
+# 🔍 1. Contrôle et nettoyage des données
 
-La table `ventes` contient initialement :
+Lors de l'importation du fichier CSV, la table contenait initialement :
 
-**18 384 lignes**
+**18 384 lignes.**
 
-Le contrôle des données a permis d'identifier :
+Le contrôle de qualité a permis d'identifier :
 
-* **59 lignes avec `order_id` vide**
-* **95 lignes avec `quantity_ordered = 0`**
+* **59 lignes avec un `order_id` vide** ;
+* **95 lignes avec `quantity_ordered = 0`**.
 
-Ces valeurs constituent des anomalies potentielles pour une analyse commerciale.
+Ces lignes ont été supprimées de la table utilisée pour l'analyse.
 
-Les données originales n'ont pas été supprimées. L'objectif était de conserver le dataset original tout en identifiant les valeurs problématiques avant l'analyse.
+Après nettoyage :
 
-### Exemple SQL
+**18 289 lignes valides** ont été conservées.
 
-```sql
--- Nombre total de lignes
-SELECT COUNT(*) AS nombre_lignes
-FROM ventes;
+Des contrôles supplémentaires ont ensuite confirmé :
 
--- Lignes avec un order_id vide
-SELECT COUNT(*) AS order_id_vides
-FROM ventes
-WHERE order_id = '';
+* `order_id` vide : **0 ligne** ;
+* `quantity_ordered = 0` : **0 ligne**.
 
--- Lignes avec une quantité égale à zéro
-SELECT COUNT(*) AS quantite_zero
-FROM ventes
-WHERE quantity_ordered = 0;
-```
+> Le fichier CSV original `Sales_April_2019.csv` est conservé dans le projet. Le nettoyage concerne la table `ventes` utilisée pour les analyses SQL.
 
 ---
 
@@ -149,58 +140,36 @@ WHERE quantity_ordered = 0;
 
 L'analyse des quantités vendues permet d'identifier les produits les plus demandés.
 
-## Produit le plus vendu
+### 🥇 Produit le plus vendu
 
 Le produit ayant enregistré la plus grande quantité vendue est :
 
 **AAA Batteries (4-pack)**
 
-**2 936 unités**
+→ **2 936 unités**
 
-Il est suivi notamment par :
+Les autres produits fortement vendus comprennent notamment :
 
-* AA Batteries (4-pack)
-* Lightning Charging Cable
-* USB-C Charging Cable
-* Wired Headphones
-
-### Requête SQL
-
-```sql
-SELECT
-    product,
-    SUM(quantity_ordered) AS quantite_vendue
-FROM ventes
-WHERE product != ''
-GROUP BY product
-ORDER BY quantite_vendue DESC;
-```
+* AA Batteries (4-pack) ;
+* Lightning Charging Cable ;
+* USB-C Charging Cable ;
+* Wired Headphones.
 
 ---
 
 # 💰 3. Chiffre d'affaires par produit
 
+Le chiffre d'affaires est calculé selon la formule :
+
+```text
+Chiffre d'affaires = quantité vendue × prix unitaire
+```
+
 Le produit générant le plus de chiffre d'affaires est :
 
-**Macbook Pro Laptop — 773 500 $**
+**Macbook Pro Laptop**
 
-Le chiffre d'affaires est calculé avec :
-
-```sql
-quantity_ordered * price_each
-```
-
-### Requête SQL
-
-```sql
-SELECT
-    product,
-    SUM(quantity_ordered * price_each) AS chiffre_affaires
-FROM ventes
-WHERE product != ''
-GROUP BY product
-ORDER BY chiffre_affaires DESC;
-```
+→ **773 500 $**
 
 Cette analyse montre qu'un produit vendu en grande quantité n'est pas nécessairement celui qui génère le plus de revenus.
 
@@ -208,23 +177,17 @@ Cette analyse montre qu'un produit vendu en grande quantité n'est pas nécessai
 
 # 💵 4. Chiffre d'affaires global
 
-Le chiffre d'affaires total observé dans le dataset est :
+Le chiffre d'affaires total des données nettoyées est :
 
 ## **3 396 059,11 $**
 
-### Requête SQL
+Il est calculé avec :
 
 ```sql
-SELECT
-    SUM(quantity_ordered * price_each) AS chiffre_affaires_total
-FROM ventes;
+SUM(quantity_ordered * price_each)
 ```
 
-Le calcul repose sur :
-
-```text
-Chiffre d'affaires = quantité vendue × prix unitaire
-```
+Ce calcul permet d'obtenir le revenu généré par l'ensemble des ventes analysées.
 
 ---
 
@@ -245,27 +208,15 @@ L'utilisation de `JOIN` permet ensuite d'analyser les performances commerciales 
 | Cable          |           4 641 |        62 572,95 $ |
 | Batteries      |           5 758 |        19 615,12 $ |
 
-### Requête SQL
-
-```sql
-SELECT
-    produits.category,
-    SUM(ventes.quantity_ordered) AS quantite_vendue,
-    SUM(ventes.quantity_ordered * ventes.price_each) AS chiffre_affaires
-FROM ventes
-JOIN produits
-    ON ventes.product = produits.product
-GROUP BY produits.category
-ORDER BY chiffre_affaires DESC;
-```
-
 ### 💡 Insight
 
-La catégorie **Laptop** génère le chiffre d'affaires le plus élevé avec :
+La catégorie **Laptop** génère le chiffre d'affaires le plus élevé :
 
 **1 165 496,08 $**
 
 À l'inverse, la catégorie **Batteries** possède un volume de vente important mais génère un chiffre d'affaires beaucoup plus faible.
+
+Cela illustre la différence entre **volume vendu** et **revenus générés**.
 
 ---
 
@@ -275,7 +226,7 @@ La colonne `purchase_address` contient l'adresse complète du client.
 
 La fonction `SUBSTRING_INDEX()` permet d'extraire la ville depuis cette adresse.
 
-## Chiffre d'affaires par ville
+### Chiffre d'affaires par ville
 
 | Ville         | Chiffre d'affaires |
 | ------------- | -----------------: |
@@ -289,40 +240,21 @@ La fonction `SUBSTRING_INDEX()` permet d'extraire la ville depuis cette adresse.
 | Portland      |       241 128,11 $ |
 | Austin        |       172 683,59 $ |
 
-### Requête SQL
-
-```sql
-SELECT
-    SUBSTRING_INDEX(
-        SUBSTRING_INDEX(purchase_address, ',', 2),
-        ',',
-        -1
-    ) AS ville,
-    SUM(quantity_ordered * price_each) AS chiffre_affaires
-FROM ventes
-GROUP BY ville
-ORDER BY chiffre_affaires DESC;
-```
-
 ### 💡 Insight
 
 **San Francisco** est la ville générant le plus de chiffre d'affaires :
 
 **817 074,77 $**
 
-Elle est suivie par :
+Elle est suivie par Los Angeles et New York City.
 
-* Los Angeles : **551 399,07 $**
-* New York City : **446 587,78 $**
-* Boston : **353 880,16 $**
-
-San Francisco représente également le plus grand nombre de transactions avec :
+San Francisco représente également le plus grand nombre de transactions :
 
 **4 437 ventes**
 
 pour une quantité totale de :
 
-**4 987 unités**
+**4 987 unités**.
 
 ---
 
@@ -330,40 +262,15 @@ pour une quantité totale de :
 
 La colonne `order_date` contient la date et l'heure de chaque commande.
 
-La fonction `STR_TO_DATE()` permet de convertir le texte en date/heure, tandis que `HOUR()` permet d'extraire l'heure.
+La fonction `STR_TO_DATE()` permet de convertir le texte en date/heure et `HOUR()` permet ensuite d'extraire l'heure.
 
-## Nombre de ventes par heure
-
-### Requête SQL
-
-```sql
-SELECT
-    HOUR(STR_TO_DATE(order_date, '%m/%d/%y %H:%i')) AS heure,
-    COUNT(*) AS nombre_ventes
-FROM ventes
-WHERE order_date != ''
-GROUP BY heure
-ORDER BY nombre_ventes DESC;
-```
+### Heure avec le plus de ventes
 
 L'heure enregistrant le plus grand nombre de ventes est :
 
 **19h — 1 286 ventes**
 
----
-
-## Chiffre d'affaires par heure
-
-```sql
-SELECT
-    HOUR(STR_TO_DATE(order_date, '%m/%d/%y %H:%i')) AS heure,
-    COUNT(*) AS nombre_ventes,
-    SUM(quantity_ordered * price_each) AS chiffre_affaires
-FROM ventes
-WHERE order_date != ''
-GROUP BY heure
-ORDER BY chiffre_affaires DESC;
-```
+### Chiffre d'affaires par heure
 
 |   Heure | Nombre de ventes | Chiffre d'affaires |
 | ------: | ---------------: | -----------------: |
@@ -377,12 +284,12 @@ ORDER BY chiffre_affaires DESC;
 
 **19h** représente le créneau le plus performant dans les données étudiées :
 
-* **1 286 ventes**
-* **249 265,71 $ de chiffre d'affaires**
+* **1 286 ventes** ;
+* **249 265,71 $ de chiffre d'affaires**.
 
 Les périodes **11h–14h** et **18h–20h** présentent également une activité commerciale importante.
 
-Ces résultats peuvent aider une entreprise à identifier les créneaux horaires intéressants pour tester des campagnes marketing ou des actions promotionnelles.
+Ces résultats peuvent servir de base pour tester des campagnes marketing ou des promotions sur les créneaux les plus actifs.
 
 ---
 
@@ -475,6 +382,6 @@ Cette analyse SQL a permis d'étudier les performances commerciales du mois d'av
 * horaires ;
 * qualité des données.
 
-L'analyse montre notamment que les **ordinateurs portables** génèrent la plus grande part du chiffre d'affaires, que **San Francisco** est la ville la plus performante et que **19h** représente le principal pic d'activité.
+Les résultats montrent notamment que les **Laptops** génèrent la plus grande part du chiffre d'affaires, que **San Francisco** est la ville la plus performante et que **19h** représente le principal pic d'activité.
 
 Ce projet démontre ma capacité à utiliser **SQL pour contrôler, explorer, agréger et interpréter des données afin de répondre à des questions métier.**
