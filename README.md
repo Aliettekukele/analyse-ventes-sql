@@ -378,6 +378,6 @@ Cette analyse SQL a permis d'étudier les performances commerciales du mois d'av
 * horaires ;
 * qualité des données.
 
-Les résultats montrent notamment que les **Laptops** génèrent la plus grande part du chiffre d'affaires, que **San Francisco** est la ville la plus performante et que **19h** représente le principal pic d'activité.
+Les résultats montrent notamment que les **Laptops** génèrent la plus grande part du chiffre d'affaires, que **San Francisco** est la ville générant le plus de chiffre d'affaires dans le dataset. et que **19h** représente le principal pic d'activité.
 
 Ce projet démontre ma capacité à utiliser **SQL pour contrôler, explorer, agréger et interpréter des données afin de répondre à des questions métier.**
