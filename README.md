@@ -354,8 +354,13 @@ Ce projet m'a permis de mettre en pratique :
 Projet_SQL_Ventes/
 │
 ├── analyse_ventes.sql
+├── visualisation_ventes.py
 ├── README.md
-└── Sales_April_2019.csv
+├── Sales_April_2019.csv
+└── images/
+    ├── ...
+    ├── ...
+    └── ...
 ```
 
 ---
