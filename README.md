@@ -121,11 +121,7 @@ Le contrôle de qualité a permis d'identifier :
 * **59 lignes avec un `order_id` vide** ;
 * **95 lignes avec `quantity_ordered = 0`**.
 
-Ces lignes ont été supprimées de la table utilisée pour l'analyse.
-
-Après nettoyage :
-
-**18 289 lignes valides** ont été conservées.
+Les 59 lignes présentant un order_id vide sont comprises dans les 95 lignes supprimées. Après nettoyage, 18 289 lignes valides ont été conservées.
 
 Des contrôles supplémentaires ont ensuite confirmé :
 
