@@ -2,7 +2,7 @@
 
 ## 📌 Présentation du projet
 
-Ce projet consiste à analyser les ventes d'un supermarché à partir du dataset `Sales_April_2019.csv`.
+Ce projet consiste à analyser les ventes d'une entreprise de produits électroniques à partir du dataset `Sales_April_2019.csv`.
 
 L'objectif est de mettre en pratique **SQL** pour contrôler la qualité des données, explorer les ventes et produire des indicateurs utiles à la prise de décision.
 
@@ -112,16 +112,9 @@ Cette relation permet d'utiliser `JOIN` afin d'analyser les performances commerc
 
 # 🔍 1. Contrôle et nettoyage des données
 
-Lors de l'importation du fichier CSV, la table contenait initialement :
-
-**18 384 lignes.**
-
-Le contrôle de qualité a permis d'identifier :
-
-* **59 lignes avec un `order_id` vide** ;
-* **95 lignes avec `quantity_ordered = 0`**.
-
-Les 59 lignes présentant un order_id vide sont comprises dans les 95 lignes supprimées. Après nettoyage, 18 289 lignes valides ont été conservées.
+Lors de l'importation, la table contenait 18 384 lignes.
+Le contrôle de qualité a identifié 59 lignes avec un order_id vide et 95 lignes avec quantity_ordered = 0.
+Les 59 lignes avec un order_id vide sont comprises dans les 95 lignes identifiées comme invalides. Après nettoyage, 18 289 lignes valides ont été conservées.
 
 Des contrôles supplémentaires ont ensuite confirmé :
 
