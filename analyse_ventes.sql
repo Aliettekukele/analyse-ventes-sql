@@ -1,4 +1,3 @@
-```sql
 -- ============================================================
 -- PROJET 2 : ANALYSE DES VENTES AVEC SQL
 -- ============================================================
@@ -10,6 +9,9 @@
 -- Analyser les ventes du mois d'avril 2019 afin d'identifier
 -- les produits, catégories, villes et heures générant le
 -- plus de ventes et de chiffre d'affaires.
+--
+-- Technologies :
+-- MySQL / SQL / phpMyAdmin / WAMP
 -- ============================================================
 
 
@@ -18,24 +20,28 @@
 -- ============================================================
 
 -- Nombre total de lignes importées
-SELECT COUNT(*) AS nombre_lignes
+SELECT
+    COUNT(*) AS nombre_lignes
 FROM ventes;
 
 
 -- Nombre de lignes avec un order_id vide
-SELECT COUNT(*) AS order_id_vides
+SELECT
+    COUNT(*) AS order_id_vides
 FROM ventes
 WHERE order_id = '';
 
 
 -- Nombre de lignes avec une quantité égale à zéro
-SELECT COUNT(*) AS quantite_zero
+SELECT
+    COUNT(*) AS quantite_zero
 FROM ventes
 WHERE quantity_ordered = 0;
 
 
--- Nombre de lignes considérées comme valides pour l'analyse
-SELECT COUNT(*) AS lignes_valides
+-- Nombre de lignes valides utilisées pour les analyses
+SELECT
+    COUNT(*) AS lignes_valides
 FROM ventes
 WHERE order_id != ''
   AND quantity_ordered > 0
@@ -69,7 +75,10 @@ ORDER BY quantite_vendue DESC;
 -- Chiffre d'affaires par produit
 SELECT
     product,
-    SUM(quantity_ordered * price_each) AS chiffre_affaires
+    ROUND(
+        SUM(quantity_ordered * price_each),
+        2
+    ) AS chiffre_affaires
 FROM ventes
 WHERE order_id != ''
   AND quantity_ordered > 0
@@ -82,7 +91,10 @@ ORDER BY chiffre_affaires DESC;
 SELECT
     product,
     SUM(quantity_ordered) AS quantite_vendue,
-    SUM(quantity_ordered * price_each) AS chiffre_affaires
+    ROUND(
+        SUM(quantity_ordered * price_each),
+        2
+    ) AS chiffre_affaires
 FROM ventes
 WHERE order_id != ''
   AND quantity_ordered > 0
@@ -108,13 +120,16 @@ ORDER BY price_each DESC;
 -- 3. ANALYSE PAR CATEGORIE
 -- ============================================================
 
--- Chiffre d'affaires et quantité vendue par catégorie
+-- Quantité vendue et chiffre d'affaires par catégorie
 SELECT
     produits.category,
     SUM(ventes.quantity_ordered) AS quantite_vendue,
-    SUM(ventes.quantity_ordered * ventes.price_each) AS chiffre_affaires
+    ROUND(
+        SUM(ventes.quantity_ordered * ventes.price_each),
+        2
+    ) AS chiffre_affaires
 FROM ventes
-JOIN produits
+INNER JOIN produits
     ON ventes.product = produits.product
 WHERE ventes.order_id != ''
   AND ventes.quantity_ordered > 0
@@ -129,7 +144,10 @@ ORDER BY chiffre_affaires DESC;
 
 -- Chiffre d'affaires total sur les lignes valides
 SELECT
-    SUM(quantity_ordered * price_each) AS chiffre_affaires_total
+    ROUND(
+        SUM(quantity_ordered * price_each),
+        2
+    ) AS chiffre_affaires_total
 FROM ventes
 WHERE order_id != ''
   AND quantity_ordered > 0
@@ -149,7 +167,10 @@ SELECT
             -1
         )
     ) AS ville,
-    SUM(quantity_ordered * price_each) AS chiffre_affaires
+    ROUND(
+        SUM(quantity_ordered * price_each),
+        2
+    ) AS chiffre_affaires
 FROM ventes
 WHERE order_id != ''
   AND quantity_ordered > 0
@@ -171,7 +192,10 @@ SELECT
     ) AS ville,
     COUNT(*) AS nombre_ventes,
     SUM(quantity_ordered) AS quantite_vendue,
-    SUM(quantity_ordered * price_each) AS chiffre_affaires
+    ROUND(
+        SUM(quantity_ordered * price_each),
+        2
+    ) AS chiffre_affaires
 FROM ventes
 WHERE order_id != ''
   AND quantity_ordered > 0
@@ -188,7 +212,10 @@ ORDER BY chiffre_affaires DESC;
 -- Nombre de ventes par heure
 SELECT
     HOUR(
-        STR_TO_DATE(order_date, '%m/%d/%y %H:%i')
+        STR_TO_DATE(
+            order_date,
+            '%m/%d/%y %H:%i'
+        )
     ) AS heure,
     COUNT(*) AS nombre_ventes
 FROM ventes
@@ -203,10 +230,16 @@ ORDER BY nombre_ventes DESC;
 -- Chiffre d'affaires et nombre de ventes par heure
 SELECT
     HOUR(
-        STR_TO_DATE(order_date, '%m/%d/%y %H:%i')
+        STR_TO_DATE(
+            order_date,
+            '%m/%d/%y %H:%i'
+        )
     ) AS heure,
     COUNT(*) AS nombre_ventes,
-    SUM(quantity_ordered * price_each) AS chiffre_affaires
+    ROUND(
+        SUM(quantity_ordered * price_each),
+        2
+    ) AS chiffre_affaires
 FROM ventes
 WHERE order_id != ''
   AND quantity_ordered > 0
@@ -220,18 +253,22 @@ ORDER BY chiffre_affaires DESC;
 -- 7. REQUETE DE SYNTHESE
 -- ============================================================
 
--- Résumé du chiffre d'affaires par catégorie
+-- Résumé des performances commerciales par catégorie
 SELECT
     produits.category,
     COUNT(*) AS nombre_ventes,
     SUM(ventes.quantity_ordered) AS quantite_vendue,
-    SUM(ventes.quantity_ordered * ventes.price_each) AS chiffre_affaires
+    ROUND(
+        SUM(
+            ventes.quantity_ordered * ventes.price_each
+        ),
+        2
+    ) AS chiffre_affaires
 FROM ventes
-JOIN produits
+INNER JOIN produits
     ON ventes.product = produits.product
 WHERE ventes.order_id != ''
   AND ventes.quantity_ordered > 0
   AND ventes.product != ''
 GROUP BY produits.category
 ORDER BY chiffre_affaires DESC;
-```
